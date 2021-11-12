@@ -30,7 +30,7 @@ from pyarrow.includes.libarrow cimport *
 from pyarrow.lib cimport (_Weakrefable, Buffer, Array, Schema,
                           check_status,
                           MemoryPool, maybe_unbox_memory_pool,
-                          Table, NativeFile,
+                          Table, ChunkedArray, NativeFile,
                           pyarrow_wrap_chunked_array,
                           pyarrow_wrap_schema,
                           pyarrow_wrap_table,
@@ -1437,8 +1437,8 @@ cdef class ParquetWriter(_Weakrefable):
 
     def write_table(self, Table table, row_group_size=None):
         cdef:
-            CTable* ctable = table.table
-            int64_t c_row_group_size
+           CTable* ctable = table.table
+           int64_t c_row_group_size
 
         if row_group_size is None or row_group_size == -1:
             c_row_group_size = ctable.num_rows()
@@ -1450,6 +1450,20 @@ cdef class ParquetWriter(_Weakrefable):
         with nogil:
             check_status(self.writer.get()
                          .WriteTable(deref(ctable), c_row_group_size))
+
+    def write_column(self, Array array):
+        cdef:
+           CArray* carray = array.ap
+        #
+        # c_array = asarray(array)
+        # cdef shared_ptr[CChunkedArray] chunked_array
+        # print("[./pyarrow/_parquet.pyx] write_column()")
+        
+        # need some way to convert array to type shared_ptr[CChunkedArray]* write CChunkedArray
+        # chunked_array = pyarrow_unwrap_chunked_array()
+        with nogil:
+            check_status(self.writer.get().WriteColumnChunk(deref(carray)))
+
 
     @property
     def metadata(self):

@@ -745,6 +745,10 @@ writer_engine_version : unused
 
         self.writer.write_table(table, row_group_size=row_group_size)
 
+    def write_column(self, array):
+        print("[./pyarrow/parquet.py] WRITE COLUMN")
+        self.writer.write_column(array)
+
     def close(self):
         if self.is_open:
             self.writer.close()

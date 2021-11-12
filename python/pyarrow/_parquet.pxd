@@ -19,7 +19,7 @@
 # cython: language_level = 3
 
 from pyarrow.includes.common cimport *
-from pyarrow.includes.libarrow cimport (CChunkedArray, CSchema, CStatus,
+from pyarrow.includes.libarrow cimport (CArray, CChunkedArray, CSchema, CStatus,
                                         CTable, CMemoryPool, CBuffer,
                                         CKeyValueMetadata,
                                         CRandomAccessFile, COutputStream,
@@ -487,6 +487,7 @@ cdef extern from "parquet/arrow/writer.h" namespace "parquet::arrow" nogil:
                      unique_ptr[FileWriter]* writer)
 
         CStatus WriteTable(const CTable& table, int64_t chunk_size)
+        CStatus WriteColumnChunk(const CArray& data)
         CStatus NewRowGroup(int64_t chunk_size)
         CStatus Close()
 

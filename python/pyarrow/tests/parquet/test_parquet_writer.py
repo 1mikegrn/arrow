@@ -68,6 +68,34 @@ def test_parquet_incremental_file_build(tempdir, use_legacy_dataset):
     tm.assert_frame_equal(result.to_pandas(), expected)
 
 
+def test_parquet_write_by_column(tempdir):
+    
+    array_one = pa.array([1,2,3])
+
+    # array_two = pa.array([4,5,6])
+
+    out = pa.BufferOutputStream()
+
+    schema = pa.schema(
+        [pa.field('one', pa.int64()), pa.field('two', pa.int64())]
+    )
+
+    writer = pq.ParquetWriter(out, schema=schema, version='2.6')
+
+    writer.write_column(array_one)
+
+    # writer.write_column(array_two)
+
+    writer.close()
+
+    buf = out.getvalue()
+    result = _read_table(
+        pa.BufferReader(buf)
+    )
+    import pdb; pdb.set_trace()
+    assert result
+
+
 def test_validate_schema_write_table(tempdir):
     # ARROW-2926
     simple_fields = [
